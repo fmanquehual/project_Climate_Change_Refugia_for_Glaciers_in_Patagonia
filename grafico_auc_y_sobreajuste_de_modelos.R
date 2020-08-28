@@ -1,5 +1,6 @@
 library(ggplot2)
 library(cowplot)
+library(ggrepel)
 
 rm(list=ls())
 dev.off()
@@ -70,20 +71,47 @@ setwd('C:/Users/Usuario/Documents/Francisco/proyecto_RCC/datos/')
 
 
 
-# Plots ----
 
+# Calculo lineas de tendencia ----
 setwd('C:/Users/Usuario/Documents/Francisco/proyecto_RCC/datos/')
 
 db.sur <- read.csv('desempenho_modelos_zona_sur.csv')
 db.austral <- read.csv('desempenho_modelos_zona_austral.csv')
 
 
+rango1 <- 2:4
+rango2 <- 5:8
+valores.i <- 1:8
+
+db.austral.rango1 <- db.austral[rango1,]
+modelo1 <- lm(dif.auc.calibration.evaluation~coefficients.regularizaation, db.austral.rango1)
+b0 <- coefficients(modelo1)[1]
+b1 <- coefficients(modelo1)[2]
+db.austral$valores.predichos.rango1 <- b1*valores.i+b0
+  
+db.austral.rango2 <- db.austral[rango2,]
+modelo2 <- lm(dif.auc.calibration.evaluation~coefficients.regularizaation, db.austral.rango2)
+b0 <- coefficients(modelo2)[1]
+b1 <- coefficients(modelo2)[2]
+db.austral$valores.predichos.rango2 <- b1*valores.i+b0
+
+db.austral
+
+# fin ---
+
+
+
+
+# Plots ----
+
 p1.sur <- ggplot(db.sur) + 
   geom_line(aes(x = coefficients.regularizaation, y = auc.mean), col = 'red') + 
   geom_point(aes(x = coefficients.regularizaation, y = auc.mean), col = 'black') +
   labs(x = 'Model', y = 'AUC mean') +
   scale_x_discrete(limits = db.sur$coefficients.regularizaation) + 
-  theme_bw()
+  theme_bw() +
+  theme(axis.title.x = element_text(color="black", size=11, face="bold"),
+        axis.title.y = element_text(color="black", size=11, face="bold")) 
 
 
 p2.sur <- ggplot(db.sur) + 
@@ -91,7 +119,9 @@ p2.sur <- ggplot(db.sur) +
   geom_point(aes(x = coefficients.regularizaation, y = dif.auc.calibration.evaluation)) +
   labs(x = 'Model', y = 'Calibration - Evaluation') +
   scale_x_discrete(limits = db.sur$coefficients.regularizaation) +
-  theme_bw()
+  theme_bw() +
+  theme(axis.title.x = element_text(color="black", size=11, face="bold"),
+        axis.title.y = element_text(color="black", size=11, face="bold")) 
 
 
 p1.austral <- ggplot(db.austral) + 
@@ -99,20 +129,33 @@ p1.austral <- ggplot(db.austral) +
   geom_point(aes(x = coefficients.regularizaation, y = auc.mean), col = 'black') +
   labs(x = 'Model', y = 'AUC mean') +
   scale_x_discrete(limits = db.sur$coefficients.regularizaation) + 
-  theme_bw()
-
+  theme_bw() +
+  theme(axis.title.x = element_text(color="black", size=11, face="bold"),
+        axis.title.y = element_text(color="black", size=11, face="bold")) 
 
 p2.austral <- ggplot(db.austral) + 
   geom_line(aes(x = coefficients.regularizaation, y = dif.auc.calibration.evaluation), colour="#208BB0")+  # AZUL
+  # geom_line(aes(x = coefficients.regularizaation, y = valores.predichos.rango1), colour="black", linetype = "dashed") +
+  # geom_line(aes(x = coefficients.regularizaation, y = valores.predichos.rango2), colour="black", linetype = "dashed") +
   geom_point(aes(x = coefficients.regularizaation, y = dif.auc.calibration.evaluation)) +
   labs(x = 'Model', y = 'Calibration - Evaluation') +
   scale_x_discrete(limits = db.sur$coefficients.regularizaation) +
-  theme_bw()
+  theme_bw() +
+  theme(axis.title.x = element_text(color="black", size=11, face="bold"),
+        axis.title.y = element_text(color="black", size=11, face="bold")) #+
+  # annotate(geom="text", x=6, y=0.000545, label="Range 1 trend line",
+  #          color="black") +
+  # annotate(geom="text", x=3, y=0.00044, label="Range 2 trend line",
+  #          color="black")
 
-
-setwd('C:/Users/Usuario/OneDrive/plots_paper/')
 p0 <- plot_grid(p1.sur, p2.sur,
                 p1.austral, p2.austral,
                 labels="AUTO", ncol = 2, nrow = 2)
+p0
+
+
+setwd('C:/Users/Usuario/OneDrive/plots_paper/')
+# jpeg('grafico_AUCmean_y_dif_AUC_sur_austral.jpg', width = 700, height = 600, units = "px", pointsize = 12,
+#      quality = 100, type = 'cairo', res = 105)
 p0
 # dev.off()
