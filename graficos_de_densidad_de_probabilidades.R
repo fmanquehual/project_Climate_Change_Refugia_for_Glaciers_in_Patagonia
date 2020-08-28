@@ -6,6 +6,7 @@ library(cowplot)
 library(ggspatial)
 library(graticule)
 library(corrplot)
+library(ggplotify)
 
 rm(list=ls())
 dev.off()
@@ -59,32 +60,25 @@ ref <- readOGR('.', 'polygon_glaciares_marco_trabajo_nuevo_simplificado_geo')
 
 setwd('C:/Users/Usuario/Documents/Francisco/predicciones_maxent/')
 
-#value.NA <- -0.01
-
 r01 <- raster('prediccion_periodo_referencia_sur.tif')
 r02 <- raster('prediccion_periodo_referencia_austral.tif')
 r0 <- merge(r01, r02)
-#r0[is.na(r0)] <- value.NA
 
 r1 <- raster('prediccion_csiro_2050_rcp45_zona_sur.tif')
 r2 <- raster('prediccion_csiro_2050_rcp45_zona_austral.tif')
 r12 <- merge(r1, r2)
-#r12[is.na(r12)] <- value.NA
 
 r3 <- raster('prediccion_csiro_2050_rcp85_zona_sur.tif')
 r4 <- raster('prediccion_csiro_2050_rcp85_zona_austral.tif')
 r34 <- merge(r3, r4)
-#r34[is.na(r34)] <- value.NA
 
 r5 <- raster('prediccion_csiro_2070_rcp45_zona_sur.tif')
 r6 <- raster('prediccion_csiro_2070_rcp45_zona_austral.tif')
 r56 <- merge(r5, r6)
-#r56[is.na(r56)] <- value.NA
 
 r7 <- raster('prediccion_csiro_2070_rcp85_zona_sur.tif')
 r8 <- raster('prediccion_csiro_2070_rcp85_zona_austral.tif')
 r78 <- merge(r7, r8)
-#r78[is.na(r78)] <- value.NA
 
 all <- stack(r0, r12, r34, r56, r78)
 #plot(all)
@@ -96,7 +90,7 @@ all <- stack(r0, r12, r34, r56, r78)
 
 
 # Mapas con graficos de densidad ----
-#myPal <- c('#E2E9EC', '#0F2E3E')
+
 myPal <- colorRampPalette(c('#E7E4E4', '#CAC8C8', '#315669', '#181C4D'))(1000)
 myTheme <- rasterTheme(region = myPal)
 
@@ -114,31 +108,33 @@ FUN.i <- function(x){
   return(out)
 }
   
-p1 <- levelplot(all, layers=1, margin = list(FUN = FUN.i, axis = TRUE, 
+
+
+p1 <- levelplot(all, layers=1, margin = list(FUN = FUN.i, axis = gpar(col = 'black', fontsize = 10.5), 
                                              scales = list(x=c(0, prob.max),
                                                            y=c(0, prob.max))), 
-                par.settings=myTheme, colorkey=TRUE, xlab = '', ylab = '',
+                par.settings=myTheme, colorkey=FALSE, xlab = '', ylab = '',
                 at=my.at) + layer(sp.lines(grat, lty=2, col = '#777878'))
 
-p2 <- levelplot(all, layers=2, margin = list(FUN = FUN.i, axis = TRUE, 
-                                             scales = list(x=c(0, prob.max),
-                                                           y=c(0, prob.max))), 
-                par.settings=myTheme, colorkey = FALSE, xlab = '', ylab = '',
-                at=my.at) + layer(sp.lines(grat, lty=2, col = '#777878'))
-
-p3 <- levelplot(all, layers=3, margin = list(FUN = FUN.i, axis = TRUE, 
+p2 <- levelplot(all, layers=2, margin = list(FUN = FUN.i, axis = gpar(col = 'black', fontsize = 10.5), 
                                              scales = list(x=c(0, prob.max),
                                                            y=c(0, prob.max))), 
                 par.settings=myTheme, colorkey = FALSE, xlab = '', ylab = '',
                 at=my.at) + layer(sp.lines(grat, lty=2, col = '#777878'))
 
-p4 <- levelplot(all, layers=4, margin = list(FUN = FUN.i, axis = TRUE, 
+p3 <- levelplot(all, layers=3, margin = list(FUN = FUN.i, axis = gpar(col = 'black', fontsize = 10.5), 
                                              scales = list(x=c(0, prob.max),
                                                            y=c(0, prob.max))), 
                 par.settings=myTheme, colorkey = FALSE, xlab = '', ylab = '',
                 at=my.at) + layer(sp.lines(grat, lty=2, col = '#777878'))
 
-p5 <- levelplot(all, layers=5, margin = list(FUN = FUN.i, axis = TRUE, 
+p4 <- levelplot(all, layers=4, margin = list(FUN = FUN.i, axis = gpar(col = 'black', fontsize = 10.5), 
+                                             scales = list(x=c(0, prob.max),
+                                                           y=c(0, prob.max))), 
+                par.settings=myTheme, colorkey = FALSE, xlab = '', ylab = '',
+                at=my.at) + layer(sp.lines(grat, lty=2, col = '#777878'))
+
+p5 <- levelplot(all, layers=5, margin = list(FUN = FUN.i, axis = gpar(col = 'black', fontsize = 10.5), 
                                              scales = list(x=c(0, prob.max),
                                                            y=c(0, prob.max))), 
                 par.settings=myTheme, colorkey = FALSE, xlab = '', ylab = '',
@@ -153,65 +149,43 @@ p.group <- plot_grid(p1, p2, p3,
 #                    labels=c('A', ''), ncol = 2, nrow = 1)
 
 
-
-# setwd('C:/Users/Usuario/OneDrive/plots_paper/')
-# setEPS()
-# postscript(file = "predic_MAXENT_CSIRO_con_graficos_de_densidad.eps", height = 11, width = 13)  # Una figura en cm
-# par(mar=c(4,4,0,0)+0.1)
-
-p.group
-
-
-# library(ggplotify)
-library(cowplot)
-# library(prettymapr)
-# library(ggplot2)
-
-#plot.new()
 plot(0,xlim = c(0,1), ylim = c(0,1), type ='n', axes=FALSE,#xaxt='n', yaxt='n',
      ylab='', xlab='')
-colorlegend(myPal, seq(0, 1, 0.1), vertical = TRUE, align = 'l', 
-            xlim = c(0, 0.1), ylim = c(0,1))
-text(.6,0.5, 'Bias (%)', srt = 270, font = 2)
+colorlegend(myPal, seq(0, 1, 0.1), vertical = FALSE, align = 'c',
+            xlim = c(0, 0.5), ylim = c(0,1))
+text(0.5,0, 'Probability of Climate Change Refugia', srt = 0, font = 2)
 
 e2 <- as.grob(~c(
   plot(0,xlim = c(0,1), ylim = c(0,1), type ='n', axes=FALSE,#xaxt='n', yaxt='n',
        ylab='', xlab=''),
-  colorlegend(myPal, seq(0, 1, 0.1), vertical = TRUE, align = 'r', ylim = c(0,1))#,
-  #text(.6,0.5, 'Bias (%)', srt = 270, font = 2)
-))
-
-e3 <- as.grob(~c(
-  plot(0,xlim = c(0,1), ylim = c(0,1), type ='n', axes=FALSE,#xaxt='n', yaxt='n',
-       ylab='', xlab=''),
-  text(0,0.5, 'Probability of Climate Change Refugia', srt = 270, font = 2)
+  colorlegend(myPal, seq(0, 1, 0.1), vertical = FALSE, align = 'c',
+              xlim = c(0, 0.8), ylim = c(0,1)),
+  text(0.4,-0.3, 'Probability of Climate Change Refugia', srt = 0, font = 2)
 ))
 
 ggdraw(e2)
-ggdraw(e3)
 ej0 <- ggdraw(e2)
-ej1 <- ggdraw(e3)
-
-# e3 <- as.grob(~c(par(mar = rep(0,4)),
-#               plot(0, xlim = c(0,6), ylim = c(-0.5,1.2), type = "n"),
-#               colorlegend(myPal, seq(0, 1, 0.1), vertical = TRUE)
-# ))
-# ej <- ggdraw(e3)
 
 
-plot_grid(p.group, ej0, ej1,
-          ncol = 3, nrow = 1,
-          scale = c(1, 1, 1),
-          rel_heights = c(4,1,1),
-          rel_widths = c(10,1,1) )
+setwd('C:/Users/Usuario/OneDrive/plots_paper/')
+jpeg('predic_MAXENT_CSIRO_con_graficos_de_densidad.jpg', width = 1290, height = 1400, units = "px", pointsize = 12,
+     quality = 100, type = 'cairo', res = 110)
 
-plot_grid(p1)
-p1+ggdraw(e2)
-  colorlegend(myPal, seq(0, 1, 0.1), vertical = TRUE, align = 'r', ylim = c(0,1))#,
-
-# dev.off()
+plot_grid(p.group, ej0,
+          ncol = 1, nrow = 2,
+          scale = c(1, 0.8),
+          rel_heights = c(9,1),
+          rel_widths = c(1,1))
+dev.off()
 
 # fin ---
+
+
+
+
+
+
+
 
 
 
