@@ -1,7 +1,8 @@
-library('raster')
-library('rgdal')
-library('rgeos')
-library('prettymapr')
+library(raster)
+library(rgdal)
+library(rgeos)
+library(prettymapr)
+library(stringr)
 
 # colores ----
 
@@ -20,6 +21,7 @@ setwd('C:/Users/Usuario/Documents/Francisco/var_predictoras/topografico/')
 dem <- raster('dem_res_30m_nueva_area_estudio_geo.tif')
 
 setwd('C:/Users/Usuario/Documents/Francisco/coberturas/')
+marco.grande <- readOGR('.', 'polygon_marco_trabajo_nuevo_geo')
 relieve <- raster('relieve_nueva_area_estudio.tif')
 climas <- raster('climas_koppen_nueva_area_estudio_reclas_geo.tif')
 climas.f <- raster('climas_koppen_futuro_nueva_area_estudio_reclas_geo.tif')
@@ -66,46 +68,138 @@ cex.i <- 1
 setwd('C:/Users/Usuario/OneDrive/plots_paper/')
 # setwd('C:/Users/Usuario/Desktop/')
 # pdf('ej.pdf', height = 10, width = 15)
-cairo_ps("ubicacion_area_estudio_2_mapas.eps", width = 10, height = 6.35)
+# cairo_ps("ubicacion_area_estudio_2_mapas.eps", width = 10, height = 6.35)
 # par(mar=c(4,4,0,0)+0.1)
 
-par(mar=c(2,4,2,0)+0.1, mfrow=c(1,2))
+# par(mar=c(2,4,2,0)+0.1, mfrow=c(1,2))
 
 # presente
 plot(climas, alpha = 1, col=colors.i, useRaster=TRUE, asp = 1, legend = FALSE, axes=FALSE)
-#plot(relieve, col = grey(1:100/100), axes=FALSE, legend=FALSE, box=FALSE, useRaster=TRUE, asp = 1) 
 plot(oceano, col='#0b243b', add=TRUE) 
 plot(g, alpha = 1, col='#FFFFFF', add=TRUE, legend=FALSE, useRaster=TRUE, asp = 1) 
 plot(lim.sur, border=col.lim.sur, lwd=1.5, lty=2, add=TRUE)
 plot(lim.austral, border=col.lim.austral, lwd=1.5, lty=2, add=TRUE)
 mtext(text = 'A', side = 3, line = line.i, adj=0, outer = FALSE, col = 'black', font = 2, cex = cex.i)
-#grid() 
 axis(1, at=lon.i$value, labels=lon.i$sufijo, cex.axis = 0.8, las = 1) 
 axis(2, at=lat.i$value, labels=lat.i$sufijo, cex.axis = 0.8, las = 1) 
-#plot(climas, alpha = 0.5, col=colors.i, add=TRUE, useRaster=TRUE, asp = 1, legend = FALSE) #, zlim=c(1,5), axis.args=arg.i, legend.shrink=0.2)
-legend("bottomright", title=NULL, text.font = 2, legend = c('B', 'C', 'D', 'E', 'Glacier', 'Ocean', 'South', 'Austral'), 
-       fill=c(col.j, "#FFFFFF", '#0b243b', NA, NA), border = c(col.j, "black", '#0b243b', NA, NA), 
-       lty = c(NA, NA, NA, NA, NA, NA, 2, 2), merge = TRUE, col = c(col.lim.sur, col.lim.austral), horiz=FALSE, cex=0.8) 
-addscalebar(label.col = 'white', plotepsg = 4326) 
-addnortharrow(pos = "topleft", cols = c("white", "white"), border = 'white', text.col = 'white', scale = 0.7) 
+addscalebar(style = 'ticks', linecol = 'white', label.col = 'white', pos = 'bottomright', plotepsg = 4326) 
 
 # futuro
 plot(climas.f, alpha = 1, col=colors.i, useRaster=TRUE, asp = 1, legend = FALSE, axes=FALSE)
-#plot(relieve, col = grey(1:100/100), axes=FALSE, legend=FALSE, box=FALSE, useRaster=TRUE, asp = 1) 
 plot(oceano, col='#0b243b', add=TRUE) 
 plot(g, alpha = 1, col='#FFFFFF', add=TRUE, legend=FALSE, useRaster=TRUE, asp = 1) 
 plot(lim.sur, border=col.lim.sur, lwd=1.5, lty=2, add=TRUE)
 plot(lim.austral, border=col.lim.austral, lwd=1.5, lty=2, add=TRUE)
 mtext(text = 'B', side = 3, line = line.i, adj=0, outer = FALSE, col = 'black', font = 2, cex = cex.i)
-#grid() 
 axis(1, at=lon.i$value, labels=lon.i$sufijo, cex.axis = 0.8, las = 1) 
-axis(2, at=lat.i$value, labels=lat.i$sufijo, cex.axis = 0.8, las = 1) 
-#plot(climas, alpha = 0.5, col=colors.i, add=TRUE, useRaster=TRUE, asp = 1, legend = FALSE) #, zlim=c(1,5), axis.args=arg.i, legend.shrink=0.2)
-legend("bottomright", title=NULL, text.font = 2, legend = c('B', 'C', 'D', 'E', 'Glacier', 'Ocean', 'South', 'Austral'), 
-       fill=c(col.j, "#FFFFFF", '#0b243b', NA, NA), border = c(col.j, "black", '#0b243b', NA, NA), 
-       lty = c(NA, NA, NA, NA, NA, NA, 2, 2), merge = TRUE, col = c(col.lim.sur, col.lim.austral), horiz=FALSE, cex=0.8) 
-
-addscalebar(label.col = 'white', plotepsg = 4326) 
+addscalebar(style = 'ticks', linecol = 'white', label.col = 'white', pos = 'bottomright', plotepsg = 4326) 
 addnortharrow(pos = "topleft", cols = c("white", "white"), border = 'white', text.col = 'white', scale = 0.7) 
 
+plot.new()
+
+legend("topleft", title=NULL, text.font = 2, 
+       legend = c('Study area', 'Arid', 'Temperate', 'Cold', 'Polar', 'Glaciers', 'Ocean'), 
+       fill=c('transparent', col.j, "transparent", '#0b243b'), 
+       border = c('red', col.j, "black", '#0b243b'),
+       horiz=FALSE, cex=0.8, ncol = 4) 
+
+legend("bottomright", title=NULL, text.font = 2, 
+       legend = c('South glaciological region', 'Austral glaciological region'), 
+       lty = 2, 
+       col = c(col.lim.sur, col.lim.austral), 
+       horiz=FALSE, cex=0.8, merge = TRUE) 
+
 dev.off()
+
+# fin ---
+
+
+
+
+
+
+
+
+library(ggplotify)
+library(cowplot)
+library(prettymapr)
+library(ggplot2)
+
+setwd('C:/Users/Usuario/Documents/Francisco/WRF/coberturas/coberturas_ok/')
+sud <- readOGR('.', 'sudamerica_clip')
+
+
+setwd('C:/Users/Usuario/Documents/Francisco/WRF/coberturas/export/')
+ocean.sud <- readOGR('.', 'polygon_oceano__sudamerica_geo')
+
+
+# union de mapas ----
+e1 <- as.grob(~c(plot(climas, alpha = 1, col=colors.i, useRaster=TRUE, asp = 0.695, legend = FALSE, axes=FALSE),
+                 plot(oceano, col='#0b243b', add=TRUE), 
+                 plot(g, alpha = 1, col='#FFFFFF', add=TRUE, legend=TRUE, useRaster=TRUE, asp = 1), 
+                 plot(lim.sur, border=col.lim.sur, lwd=2, lty=2, add=TRUE),
+                 plot(lim.austral, border=col.lim.austral, lwd=2, lty=2, add=TRUE),
+                 mtext(text = 'A', side = 3, line = line.i, adj=0, outer = FALSE, col = 'black', font = 2, cex = cex.i),
+                 axis(1, at=lon.i$value, labels=lon.i$sufijo, cex.axis = 0.8, las = 1, padj=-1),
+                 axis(2, at=lat.i$value, labels=lat.i$sufijo, cex.axis = 0.8, las = 1, hadj=0.7), 
+                 addscalebar(style = 'ticks', linecol = 'white', label.col = 'white', pos = 'bottomright', plotepsg = 4326) 
+))
+
+e2 <- as.grob(~c(#plot(ocean.sud, col='white', border='white', ylim=c(-53.5, 10.5)),
+  plot(sud, col='gray', border='white', lwd=0.5, box=0),
+  plot(ocean.sud, add=TRUE, col='white', border='black', lwd=0.4),
+  plot(marco.grande, add=TRUE, border='red', lwd=1.4)))
+
+e3 <- as.grob(~c(plot(climas.f, alpha = 1, col=colors.i, useRaster=TRUE, asp = 0.695, legend = FALSE, axes=FALSE),
+                 plot(oceano, col='#0b243b', add=TRUE),
+                 plot(g, alpha = 1, col='#FFFFFF', add=TRUE, legend=TRUE, useRaster=TRUE, asp = 1), 
+                 plot(lim.sur, border=col.lim.sur, lwd=2, lty=2, add=TRUE),
+                 plot(lim.austral, border=col.lim.austral, lwd=2, lty=2, add=TRUE),
+                 mtext(text = 'B', side = 3, line = line.i, adj=0, outer = FALSE, col = 'black', font = 2, cex = cex.i),
+                 axis(1, at=lon.i$value, labels=lon.i$sufijo, cex.axis = 0.8, las = 1, padj=-1),
+                 addscalebar(style = 'ticks', linecol = 'white', label.col = 'white', pos = 'bottomright', plotepsg = 4326),
+                 addnortharrow(pos = "topleft", cols = c("white", "white"), border = 'white', text.col = 'white', scale = 0.7) 
+))
+
+e5 <- as.grob(~c(plot.new(),
+                 legend("bottomleft", title=NULL, text.font = 2, 
+                       legend = c('Study area', 'Arid', 'Temperate', 'Cold', 'Polar', 'Glaciers', 'Ocean'), 
+                       fill=c('transparent', col.j, "transparent", '#0b243b'), 
+                       border = c('red', col.j, "black", '#0b243b'),
+                       horiz=FALSE, cex=0.8, ncol = 4, bty = 'n', y.intersp = 1.2
+                       )
+))
+
+e6 <- as.grob(~c(plot.new(),
+                 legend("bottomleft", title=NULL, text.font = 2, 
+                        legend = c('South glaciological region', 'Austral glaciological region'), 
+                        lty = 2, bty = 'n', y.intersp = 1.2, 
+                        col = c(col.lim.sur, col.lim.austral), 
+                        horiz=FALSE, cex=0.8, merge = TRUE) 
+))
+                 
+vp=viewport(x=.227, y=.759, width=.44, height=.33)
+e4 <- as.grob(~c(grid.newpage(),
+                 grid.draw(e1),
+                 pushViewport(vp),
+                 grid.draw(e2),
+                 upViewport()))
+
+# fin ---
+
+
+# plot out ----
+
+setwd('C:/Users/Usuario/OneDrive/plots_paper/')
+
+jpeg('ubicacion_area_estudio_3_mapas.jpg', width = 720, height = 530, units = "px", pointsize = 13,
+     quality = 100, type = 'cairo', res = 95)
+
+ggdraw(xlim = c(0, 30), ylim = c(0, 20), clip = 'on') +
+  draw_plot(e4, x = -1.6, y = -1.5, width = 20.5, height = 23) +
+  draw_plot(e3, x = 12.1, y = -1.5, width = 20.5, height = 23) +
+  draw_plot(e5, x = -2.5, y = -4, width = 28, height = 21) +
+  draw_plot(e6, x = 14, y = -4, width = 28, height = 21)
+
+dev.off()
+

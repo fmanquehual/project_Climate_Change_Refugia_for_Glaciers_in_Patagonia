@@ -1,10 +1,11 @@
-library('ggplot2')
-library('rgdal')
-library('raster')
-library('rasterVis')
-library('cowplot')
-library('ggspatial')
-library('graticule')
+library(ggplot2)
+library(rgdal)
+library(raster)
+library(rasterVis)
+library(cowplot)
+library(ggspatial)
+library(graticule)
+library(corrplot)
 
 rm(list=ls())
 dev.off()
@@ -143,26 +144,75 @@ p5 <- levelplot(all, layers=5, margin = list(FUN = FUN.i, axis = TRUE,
                 par.settings=myTheme, colorkey = FALSE, xlab = '', ylab = '',
                 at=my.at) + layer(sp.lines(grat, lty=2, col = '#777878'))
 
-scale.i <- 1.3 # variacion en el tamaño del mapa
-p.group <- plot_grid(p2, p3,
-                     p4, p5,
-                     labels=c('B', 'C', 'D', 'E'), ncol = 2, nrow = 2, 
-                     scale = c(scale.i, scale.i, scale.i, scale.i))
-p.out <- plot_grid(p1, p.group,
-                   labels=c('A', ''), ncol = 2, nrow = 1)
+scale.i <- 1.2 # variacion en el tamaño del mapa
+p.group <- plot_grid(p1, p2, p3,
+                     p1, p4, p5,
+                     labels=c('AUTO'), ncol = 3, nrow = 2, 
+                     scale = c(scale.i, scale.i, scale.i, scale.i, scale.i, scale.i))
+# p.out <- plot_grid(p1, p.group,
+#                    labels=c('A', ''), ncol = 2, nrow = 1)
 
 
 
-setwd('C:/Users/Usuario/OneDrive/plots_paper/')
-setEPS()
-postscript(file = "predic_MAXENT_CSIRO_con_graficos_de_densidad.eps", height = 11, width = 13)  # Una figura en cm
-par(mar=c(4,4,0,0)+0.1)
+# setwd('C:/Users/Usuario/OneDrive/plots_paper/')
+# setEPS()
+# postscript(file = "predic_MAXENT_CSIRO_con_graficos_de_densidad.eps", height = 11, width = 13)  # Una figura en cm
+# par(mar=c(4,4,0,0)+0.1)
 
-p.out
+p.group
 
-dev.off()
+
+# library(ggplotify)
+library(cowplot)
+# library(prettymapr)
+# library(ggplot2)
+
+#plot.new()
+plot(0,xlim = c(0,1), ylim = c(0,1), type ='n', axes=FALSE,#xaxt='n', yaxt='n',
+     ylab='', xlab='')
+colorlegend(myPal, seq(0, 1, 0.1), vertical = TRUE, align = 'l', 
+            xlim = c(0, 0.1), ylim = c(0,1))
+text(.6,0.5, 'Bias (%)', srt = 270, font = 2)
+
+e2 <- as.grob(~c(
+  plot(0,xlim = c(0,1), ylim = c(0,1), type ='n', axes=FALSE,#xaxt='n', yaxt='n',
+       ylab='', xlab=''),
+  colorlegend(myPal, seq(0, 1, 0.1), vertical = TRUE, align = 'r', ylim = c(0,1))#,
+  #text(.6,0.5, 'Bias (%)', srt = 270, font = 2)
+))
+
+e3 <- as.grob(~c(
+  plot(0,xlim = c(0,1), ylim = c(0,1), type ='n', axes=FALSE,#xaxt='n', yaxt='n',
+       ylab='', xlab=''),
+  text(0,0.5, 'Probability of Climate Change Refugia', srt = 270, font = 2)
+))
+
+ggdraw(e2)
+ggdraw(e3)
+ej0 <- ggdraw(e2)
+ej1 <- ggdraw(e3)
+
+# e3 <- as.grob(~c(par(mar = rep(0,4)),
+#               plot(0, xlim = c(0,6), ylim = c(-0.5,1.2), type = "n"),
+#               colorlegend(myPal, seq(0, 1, 0.1), vertical = TRUE)
+# ))
+# ej <- ggdraw(e3)
+
+
+plot_grid(p.group, ej0, ej1,
+          ncol = 3, nrow = 1,
+          scale = c(1, 1, 1),
+          rel_heights = c(4,1,1),
+          rel_widths = c(10,1,1) )
+
+plot_grid(p1)
+p1+ggdraw(e2)
+  colorlegend(myPal, seq(0, 1, 0.1), vertical = TRUE, align = 'r', ylim = c(0,1))#,
+
+# dev.off()
 
 # fin ---
+
 
 
 
