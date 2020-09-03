@@ -7,6 +7,7 @@ library(ggspatial)
 library(graticule)
 library(corrplot)
 library(ggplotify)
+library(grid)
 
 rm(list=ls())
 dev.off()
@@ -143,19 +144,13 @@ p5 <- levelplot(all, layers=5, margin = list(FUN = FUN.i, axis = gpar(col = 'bla
 scale.i <- 1.2 # variacion en el tamaño del mapa
 p.group <- plot_grid(p1, p2, p3,
                      p1, p4, p5,
-                     labels=c('AUTO'), ncol = 3, nrow = 2, 
+                     labels=c('A', 'B', 'C',
+                              'A', 'D', 'E'), ncol = 3, nrow = 2, 
                      scale = c(scale.i, scale.i, scale.i, scale.i, scale.i, scale.i))
 # p.out <- plot_grid(p1, p.group,
 #                    labels=c('A', ''), ncol = 2, nrow = 1)
 
-
-plot(0,xlim = c(0,1), ylim = c(0,1), type ='n', axes=FALSE,#xaxt='n', yaxt='n',
-     ylab='', xlab='')
-colorlegend(myPal, seq(0, 1, 0.1), vertical = FALSE, align = 'c',
-            xlim = c(0, 0.5), ylim = c(0,1))
-text(0.5,0, 'Probability of Climate Change Refugia', srt = 0, font = 2)
-
-e2 <- as.grob(~c(
+leyenda0 <- as.grob(~c(
   plot(0,xlim = c(0,1), ylim = c(0,1), type ='n', axes=FALSE,#xaxt='n', yaxt='n',
        ylab='', xlab=''),
   colorlegend(myPal, seq(0, 1, 0.1), vertical = FALSE, align = 'c',
@@ -163,15 +158,14 @@ e2 <- as.grob(~c(
   text(0.4,-0.3, 'Probability of Climate Change Refugia', srt = 0, font = 2)
 ))
 
-ggdraw(e2)
-ej0 <- ggdraw(e2)
+leyenda <- ggdraw(leyenda0)
 
 
 setwd('C:/Users/Usuario/OneDrive/plots_paper/')
 jpeg('predic_MAXENT_CSIRO_con_graficos_de_densidad.jpg', width = 1290, height = 1400, units = "px", pointsize = 12,
      quality = 100, type = 'cairo', res = 110)
 
-plot_grid(p.group, ej0,
+plot_grid(p.group, leyenda,
           ncol = 1, nrow = 2,
           scale = c(1, 0.8),
           rel_heights = c(9,1),
