@@ -483,12 +483,36 @@ head(db.austral)
 
 # Graficos densidad 2D Z.G.Sur ----
 
-# setwd('C:/Users/Usuario/OneDrive/plots_paper/')
-# setEPS()
-# postscript(file = "densidad_de_probabilidad_2D_elevacion_sur.eps", height = 6, width = 9)  # Una figura en cm
-# par(mar=c(4,4,0,0)+0.1)
+intercepto.sur <- as.vector(tapply(db.sur$intercepto, db.sur$cat, unique))
+etiqueta.intercepto <- paste('Intercept trend line = ', intercepto.sur, sep = '')
 
-ggplot(db.s, aes(x=p, y=elevacion) ) +
+b1.sur <- as.vector(tapply(db.sur$b1, db.sur$cat, unique))
+etiqueta.b1 <- paste('Slope trend line = ', b1.sur, sep = '')
+
+nombres.sur <- names(tapply(db.sur$intercepto, db.sur$cat, unique))
+
+
+etiqueta.intercepto.sur <- data.frame(
+  label = etiqueta.intercepto,
+  cat   = nombres.sur,
+  x     = rep(0.8, length(intercepto.sur)),
+  y     = rep(500, length(intercepto.sur))
+)
+
+etiqueta.b1.sur <- data.frame(
+  label = etiqueta.b1,
+  cat   = nombres.sur,
+  x     = rep(0.8, length(intercepto.sur)),
+  y     = rep(500, length(intercepto.sur))
+)
+
+setwd('C:/Users/Usuario/OneDrive/plots_paper/')
+# setwd('C:/Users/Usuario/Desktop/')
+jpeg('densidad_de_probabilidad_2D_elevacion_sur.jpg', width = 2200, height = 1400, units = "px", pointsize = 12,
+     quality = 100, type = 'cairo', res = 210)
+
+
+ggplot(db.sur, aes(x=p, y=elevacion) ) +
   geom_hex(bins = 70) +
   lims(x=c(0,1)) +
   labs(x = 'Probability', y = 'Altitude') +
@@ -496,20 +520,64 @@ ggplot(db.s, aes(x=p, y=elevacion) ) +
               se = FALSE, col = 'red') + # Oculta intervalo de confianza
   facet_wrap(vars(cat), ncol = 3) +
   scale_fill_gradientn('Absolute\nfrequency', colours = c('#103C5D', '#2683C8', '#03FBFF'), na.value = NA) +
-  #scale_fill_gradientn('Absolute\nfrequency', colours = c('#4E2577', '#E5C285'), na.value = NA) +
-  #scale_fill_viridis_c('Absolute\nfrequency') +
-  #scale_fill_viridis_c('Absolute\nfrequency', direction = -1) +
-  #scale_fill_viridis_c('Absolute\nfrequency', option = 'magma', direction = -1) +
-  theme_bw()
-# dev.off()
+  scale_y_continuous(limits = c(0, 2500)) +
+  geom_text(
+    data    = etiqueta.intercepto.sur,
+    mapping = aes(x = 0.13, y = -Inf, label = label[1:6]),
+    check_overlap = TRUE,
+    hjust   = -0.1,
+    vjust   = -1, 
+    inherit.aes=FALSE
+  ) +
+  geom_text(
+    data    = etiqueta.b1.sur,
+    mapping = aes(x = 0.225, y = 100, label = label[1:6]),
+    check_overlap = TRUE,
+    hjust   = -0.1,
+    vjust   = -1, 
+    inherit.aes=FALSE
+  ) +
+  theme_bw() +
+  theme(text = element_text(size=14), panel.spacing = unit(1, "lines"))
+
+dev.off()
+
 # fin ---
+
+
 
 # Graficos densidad 2D Z.G.Austral ----
 
-# setwd('C:/Users/Usuario/OneDrive/plots_paper/')
-# setEPS()
-# postscript(file = "densidad_de_probabilidad_2D_elevacion_austral.eps", height = 6, width = 9)  # Una figura en cm
-# par(mar=c(4,4,0,0)+0.1)
+intercepto.austral <- as.vector(tapply(db.austral$intercepto, db.austral$cat, unique))
+etiqueta.intercepto <- paste('Intercept trend line = ', intercepto.austral, sep = '')
+
+b1.austral <- as.vector(tapply(db.austral$b1, db.austral$cat, unique))
+etiqueta.b1 <- paste('Slope trend line = ', b1.austral, sep = '')
+
+nombres.austral <- names(tapply(db.austral$intercepto, db.austral$cat, unique))
+
+
+etiqueta.intercepto.austral <- data.frame(
+  label = etiqueta.intercepto,
+  cat   = nombres.austral,
+  x     = rep(0.8, length(intercepto.austral)),
+  y     = rep(500, length(intercepto.austral))
+)
+
+etiqueta.b1.austral <- data.frame(
+  label = etiqueta.b1,
+  cat   = nombres.austral,
+  x     = rep(0.8, length(intercepto.austral)),
+  y     = rep(500, length(intercepto.austral))
+)
+
+setwd('C:/Users/Usuario/OneDrive/plots_paper/')
+# setwd('C:/Users/Usuario/Desktop/')
+jpeg('densidad_de_probabilidad_2D_elevacion_austral.jpg', width = 2550, height = 1550, units = "px", pointsize = 12,
+     quality = 100, type = 'cairo', res = 210)
+# jpeg('ej.jpg', width = 2550, height = 1550, units = "px", pointsize = 12,
+#      quality = 100, type = 'cairo', res = 210)
+
 
 ggplot(db.austral, aes(x=p, y=elevacion) ) +
   geom_hex(bins = 70) +
@@ -519,8 +587,28 @@ ggplot(db.austral, aes(x=p, y=elevacion) ) +
               se = FALSE, col = 'red') + # Oculta intervalo de confianza
   facet_wrap(vars(cat), ncol = 3) +
   scale_fill_gradientn('Absolute\nfrequency', colours = c('#103C5D', '#2683C8', '#03FBFF'), na.value = NA) +
-  theme_bw()
+  scale_y_continuous(limits = c(-100, 4000)) +
+  geom_text(
+    data    = etiqueta.intercepto.austral,
+    mapping = aes(x = 0.225, y = -Inf, label = label[1:6]),
+    check_overlap = TRUE,
+    hjust   = -0.1,
+    vjust   = -1, 
+    inherit.aes=FALSE
+  ) +
+  geom_text(
+    data    = etiqueta.b1.austral,
+    mapping = aes(x = 0.3, y = -30, label = label[1:6]),
+    check_overlap = TRUE,
+    hjust   = -0.1,
+    vjust   = -1, 
+    inherit.aes=FALSE
+  ) +
+  theme_bw() +
+  theme(text = element_text(size=14), panel.spacing = unit(1, "lines"))
+
 dev.off()
+
 # fin ---
 
 
