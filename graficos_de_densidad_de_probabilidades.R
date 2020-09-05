@@ -228,7 +228,7 @@ db.ref.austral$b1 <- round(b1.ref.austral, 1)
 head(db.ref.austral)  
 
 plot(db.ref.austral$p, db.ref.austral$elevacion, xlab='Probability', ylab='Altitude')
-lines(val.ref.austral, db.ref.austral, col='red')
+lines(valores.ref.austral, valores.ajustados.ref.austral, col='red')
 
 # fin ---
 
@@ -253,8 +253,8 @@ rcp45.2050.sur$intercepto <- round(b0.rcp45.2050.sur, 1)
 rcp45.2050.sur$b1 <- round(b1.rcp45.2050.sur, 1)
 head(rcp45.2050.sur)  
 
-plot(db.rcp45.2050$p, db.rcp45.2050$elevacion, xlab='Probability', ylab='Altitude')
-lines(range.p.rcp45.2050, val.rcp45.2050, col='red')
+plot(rcp45.2050.sur$p, rcp45.2050.sur$elevacion, xlab='Probability', ylab='Altitude')
+lines(valores.rcp45.2050.sur, valores.ajustados.rcp45.2050.sur, col='red')
 
 
 # Austral
