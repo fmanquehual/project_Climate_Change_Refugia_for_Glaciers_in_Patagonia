@@ -235,7 +235,53 @@ lines(valores.ref.austral, valores.ajustados.ref.austral, col='red')
 
 
 
-# 2050 RCP45 ---
+# Regresion periodo referencia 2 ----
+
+# Sur
+db.ref.sur.2 <- db_prob_elev(ref, r01, dem, 'Reference ', 'South')
+
+# lm
+lm.ref.sur <- lm(elevacion~p, data = db.ref.sur.2)
+summary(lm.ref.sur)
+
+b0.ref.sur <- coef(lm.ref.sur)[1] ; b0.ref.sur
+b1.ref.sur <- coef(lm.ref.sur)[2] ; b1.ref.sur
+valores.ref.sur <- seq(0, max(db.ref.sur.2$p), by=0.001)
+valores.ajustados.ref.sur <- (b1.ref.sur*valores.ref.sur)+b0.ref.sur
+
+db.ref.sur.2$intercepto <- round(b0.ref.sur, 1)
+db.ref.sur.2$b1 <- round(b1.ref.sur, 1)
+head(db.ref.sur.2)  
+
+plot(db.ref.sur.2$p, db.ref.sur.2$elevacion, xlab='Probability', ylab='Altitude')
+lines(valores.ref.sur, valores.ajustados.ref.sur, col='red')
+
+
+# Austral
+db.ref.austral.2 <- db_prob_elev(ref, r02, dem, 'Reference ', 'Austral')
+
+# lm
+lm.ref.austral <- lm(elevacion~p, data = db.ref.austral.2)
+summary(lm.ref.austral)
+
+b0.ref.austral <- coef(lm.ref.austral)[1] ; b0.ref.austral
+b1.ref.austral <- coef(lm.ref.austral)[2] ; b1.ref.austral
+valores.ref.austral <- seq(0, max(db.ref.austral.2$p), by=0.001)
+valores.ajustados.ref.austral <- (b1.ref.austral*valores.ref.austral)+b0.ref.austral
+
+db.ref.austral.2$intercepto <- round(b0.ref.austral, 1)
+db.ref.austral.2$b1 <- round(b1.ref.austral, 1)
+head(db.ref.austral.2)  
+
+plot(db.ref.austral.2$p, db.ref.austral.2$elevacion, xlab='Probability', ylab='Altitude')
+lines(valores.ref.austral, valores.ajustados.ref.austral, col='red')
+
+# fin ---
+
+
+
+
+# Regresion 2050 RCP45 ---
 
 # Sur
 rcp45.2050.sur <- db_prob_elev(ref, r1, dem, '2050 RCP 4.5', 'South')
@@ -281,7 +327,7 @@ lines(valores.rcp45.2050.austral, valores.ajustados.rcp45.2050.austral, col='red
 
 
 
-# 2050 RCP85 ---
+# Regresion 2050 RCP85 ---
 
 # Sur
 rcp85.2050.sur <- db_prob_elev(ref, r3, dem, '2050 RCP 8.5', 'South')
@@ -327,7 +373,7 @@ lines(valores.rcp85.2050.austral, valores.ajustados.rcp85.2050.austral, col='red
 
 
 
-# 2070 RCP45 ---
+# Regresion 2070 RCP45 ---
 
 # Sur
 rcp45.2070.sur <- db_prob_elev(ref, r5, dem, '2070 RCP 4.5', 'South')
@@ -374,7 +420,7 @@ lines(valores.rcp45.2070.austral, valores.ajustados.rcp45.2070.austral, col='red
 
 
 
-# 2070 RCP85 ---
+# Regresion 2070 RCP85 ---
 
 # Sur
 rcp85.2070.sur <- db_prob_elev(ref, r7, dem, '2070 RCP 8.5', 'South')
@@ -422,64 +468,27 @@ lines(valores.rcp85.2070.austral, valores.ajustados.rcp85.2070.austral, col='red
 
 
 # union dbs ----
-db <- rbind(db.ref, db.rcp45.2050, db.rcp45.2070, db.rcp85.2050, db.rcp85.2070)
-head(db)
+db.sur <- rbind(db.ref.sur, rcp45.2050.sur, rcp45.2070.sur, 
+                db.ref.sur.2, rcp85.2050.sur, rcp85.2070.sur)
+head(db.sur)
 
-# agrupacion de elevacion 
-
-db$elevacion2 <- 0
-
-idx <- which(db$elevacion<=10)
-db$elevacion2[idx] <- 10
-
-max(db$elevacion)
-for (i in seq(10, 3680, by=10)) {
-idx <- which(db$elevacion>i & db$elevacion<=i+10)
-db$elevacion2[idx] <- i+10
-}
-
-# idx <- which(db$elevacion>3500 & db$elevacion<=max(db$elevacion))
-# db$elevacion2[idx] <- 3600
-
-head(db)
-
-
-# agrupacion de probabilidad
-
-db$p2 <- 0
-
-idx <- which(db$p<=0.01)
-db$p2[idx] <- 0.01
-
-for (i in seq(0.01, 0.99, by=0.01)) {
-  idx <- which(db$p>i & db$p<=i+0.01)
-  db$p2[idx] <- i+0.01
-}
-
-head(db)
+db.austral <- rbind(db.ref.austral, rcp45.2050.austral, rcp45.2070.austral, 
+                    db.ref.austral.2, rcp85.2050.austral, rcp85.2070.austral)
+head(db.austral)
 
 # fin ---
 
-# Grafico densidad 1D ---
-ggplot(db) + 
-  geom_density(aes(x = elevacion, fill = cat), position = position_dodge(1), alpha = 0.3) + 
-  facet_grid(cat~.,) +
-  labs(x = 'Altitude', y = 'Density') +
-  ylim(0, 0.002) +
-  theme_bw() +
-  theme(legend.position="none")
+
 
 
 # Graficos densidad 2D Z.G.Sur ----
-db.s <- subset(db, zona == 'sur')
-dim(db.s)
 
-setwd('C:/Users/Usuario/OneDrive/plots_paper/')
-setEPS()
-postscript(file = "densidad_de_probabilidad_2D_elevacion_sur.eps", height = 6, width = 9)  # Una figura en cm
-par(mar=c(4,4,0,0)+0.1)
+# setwd('C:/Users/Usuario/OneDrive/plots_paper/')
+# setEPS()
+# postscript(file = "densidad_de_probabilidad_2D_elevacion_sur.eps", height = 6, width = 9)  # Una figura en cm
+# par(mar=c(4,4,0,0)+0.1)
 
-ggplot(db.s, aes(x=p2, y=elevacion2) ) +
+ggplot(db.s, aes(x=p, y=elevacion) ) +
   geom_hex(bins = 70) +
   lims(x=c(0,1)) +
   labs(x = 'Probability', y = 'Altitude') +
@@ -492,19 +501,17 @@ ggplot(db.s, aes(x=p2, y=elevacion2) ) +
   #scale_fill_viridis_c('Absolute\nfrequency', direction = -1) +
   #scale_fill_viridis_c('Absolute\nfrequency', option = 'magma', direction = -1) +
   theme_bw()
-dev.off()
+# dev.off()
 # fin ---
 
 # Graficos densidad 2D Z.G.Austral ----
-db.a <- subset(db, zona == 'austral')
-dim(db.a)
 
-setwd('C:/Users/Usuario/OneDrive/plots_paper/')
-setEPS()
-postscript(file = "densidad_de_probabilidad_2D_elevacion_austral.eps", height = 6, width = 9)  # Una figura en cm
-par(mar=c(4,4,0,0)+0.1)
+# setwd('C:/Users/Usuario/OneDrive/plots_paper/')
+# setEPS()
+# postscript(file = "densidad_de_probabilidad_2D_elevacion_austral.eps", height = 6, width = 9)  # Una figura en cm
+# par(mar=c(4,4,0,0)+0.1)
 
-ggplot(db.a, aes(x=p, y=elevacion) ) +
+ggplot(db.austral, aes(x=p, y=elevacion) ) +
   geom_hex(bins = 70) +
   lims(x=c(0,1)) +
   labs(x = 'Probability', y = 'Altitude') +
@@ -521,6 +528,14 @@ dev.off()
 
 
 # otros ----
+# Grafico densidad 1D ---
+# ggplot(db.sur) + 
+#   geom_density(aes(x = elevacion, fill = cat), position = position_dodge(1), alpha = 0.3) + 
+#   facet_grid(cat~.,) +
+#   labs(x = 'Altitude', y = 'Density') +
+#   ylim(0, 0.002) +
+#   theme_bw() +
+#   theme(legend.position="none")
 # # graficos de violin ---
 # ancho.boxplot <- 0.1
 # 
