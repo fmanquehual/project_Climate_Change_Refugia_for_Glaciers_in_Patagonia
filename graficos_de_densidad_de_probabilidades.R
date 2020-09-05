@@ -52,7 +52,6 @@ db_prob_elev <- function(predict.i, raster1, raster2, anho.rcp.i, zone.i){
 # lectura coberturas ----
 
 setwd("C:/Users/Usuario/Documents/Francisco/var_predictoras/inventario_glaciares_2015/Glaciares_Nacional/")
-
 ref <- readOGR('.', 'polygon_glaciares_marco_trabajo_nuevo_simplificado_geo')
 #plot(ref)
 
@@ -178,15 +177,6 @@ dev.off()
 
 
 
-
-
-
-
-
-
-
-
-
 # elevacion ----
 
 # Recorte del dem hecho en Qgis!
@@ -197,97 +187,239 @@ dem <- raster('clip_dem_res_30m_nueva_area_estudio_geo.tif')
 # fin ---
 
 
-# preparacion
 
-# referencia ---
-ref.sur2 <- db_prob_elev(ref, r01, dem, 'Reference', 'sur')
-ref.austral2 <- db_prob_elev(ref, r02, dem, 'Reference', 'austral')
-db.ref <- rbind(ref.sur2, ref.austral2)
-head(db.ref)
+
+# Regresion periodo referencia ----
+
+# Sur
+db.ref.sur <- db_prob_elev(ref, r01, dem, 'Reference', 'South')
 
 # lm
-lm.ref <- lm(elevacion~p, data = db.ref)
-summary(lm.ref)
+lm.ref.sur <- lm(elevacion~p, data = db.ref.sur)
+summary(lm.ref.sur)
 
-b0.ref <- coef(lm.ref)[1] ; b0.ref
-b1.ref <- coef(lm.ref)[2] ; b1.ref
-range.p <- seq(0, max(db.ref$p), by=0.001)
-val.ref <- (b1.ref*range.p)+b0.ref
+b0.ref.sur <- coef(lm.ref.sur)[1] ; b0.ref.sur
+b1.ref.sur <- coef(lm.ref.sur)[2] ; b1.ref.sur
+valores.ref.sur <- seq(0, max(db.ref.sur$p), by=0.001)
+valores.ajustados.ref.sur <- (b1.ref.sur*valores.ref.sur)+b0.ref.sur
 
-plot(db.ref$p, db.ref$elevacion, xlab='Probability', ylab='Elevation')
-lines(range.p, val.ref, col='red')
+db.ref.sur$intercepto <- round(b0.ref.sur, 1)
+db.ref.sur$b1 <- round(b1.ref.sur, 1)
+head(db.ref.sur)  
+
+plot(db.ref.sur$p, db.ref.sur$elevacion, xlab='Probability', ylab='Altitude')
+lines(valores.ref.sur, valores.ajustados.ref.sur, col='red')
+
+
+# Austral
+db.ref.austral <- db_prob_elev(ref, r02, dem, 'Reference', 'Austral')
+
+# lm
+lm.ref.austral <- lm(elevacion~p, data = db.ref.austral)
+summary(lm.ref.austral)
+
+b0.ref.austral <- coef(lm.ref.austral)[1] ; b0.ref.austral
+b1.ref.austral <- coef(lm.ref.austral)[2] ; b1.ref.austral
+valores.ref.austral <- seq(0, max(db.ref.austral$p), by=0.001)
+valores.ajustados.ref.austral <- (b1.ref.austral*valores.ref.austral)+b0.ref.austral
+
+db.ref.austral$intercepto <- round(b0.ref.austral, 1)
+db.ref.austral$b1 <- round(b1.ref.austral, 1)
+head(db.ref.austral)  
+
+plot(db.ref.austral$p, db.ref.austral$elevacion, xlab='Probability', ylab='Altitude')
+lines(val.ref.austral, db.ref.austral, col='red')
+
+# fin ---
+
+
+
 
 # 2050 RCP45 ---
-rcp45.2050.sur <- db_prob_elev(ref, r1, dem, '2050 RCP45', 'sur')
-rcp45.2050.austral <- db_prob_elev(ref, r2, dem, '2050 RCP45', 'austral')
-db.rcp45.2050 <- rbind(rcp45.2050.sur, rcp45.2050.austral)
-head(db.rcp45.2050)
+
+# Sur
+rcp45.2050.sur <- db_prob_elev(ref, r1, dem, '2050 RCP 4.5', 'South')
 
 # lm
-lm.rcp45.2050 <- lm(elevacion~p, data = db.rcp45.2050)
-summary(lm.rcp45.2050)
+lm.rcp45.2050.sur <- lm(elevacion~p, data = rcp45.2050.sur)
+summary(lm.rcp45.2050.sur)
 
-b0.rcp45.2050 <- coef(lm.rcp45.2050)[1] ; b0.rcp45.2050
-b1.rcp45.2050 <- coef(lm.rcp45.2050)[2] ; b1.rcp45.2050
-range.p.rcp45.2050 <- seq(0, max(db.rcp45.2050$p), by=0.001)
-val.rcp45.2050 <- (b1.rcp45.2050*range.p.rcp45.2050)+b0.rcp45.2050
+b0.rcp45.2050.sur <- coef(lm.rcp45.2050.sur)[1] ; b0.rcp45.2050.sur
+b1.rcp45.2050.sur <- coef(lm.rcp45.2050.sur)[2] ; b1.rcp45.2050.sur
+valores.rcp45.2050.sur <- seq(0, max(rcp45.2050.sur$p), by=0.001)
+valores.ajustados.rcp45.2050.sur <- (b1.rcp45.2050.sur*valores.rcp45.2050.sur)+b0.rcp45.2050.sur
 
-plot(db.rcp45.2050$p, db.rcp45.2050$elevacion, xlab='Probability', ylab='Elevation')
+rcp45.2050.sur$intercepto <- round(b0.rcp45.2050.sur, 1)
+rcp45.2050.sur$b1 <- round(b1.rcp45.2050.sur, 1)
+head(rcp45.2050.sur)  
+
+plot(db.rcp45.2050$p, db.rcp45.2050$elevacion, xlab='Probability', ylab='Altitude')
 lines(range.p.rcp45.2050, val.rcp45.2050, col='red')
 
-# 2050 RCP85 ---
-rcp85.2050.sur <- db_prob_elev(ref, r3, dem, '2050 RCP85', 'sur')
-rcp85.2050.austral <- db_prob_elev(ref, r4, dem, '2050 RCP85', 'austral')
-db.rcp85.2050 <- rbind(rcp85.2050.sur, rcp85.2050.austral)
-head(db.rcp85.2050)
+
+# Austral
+rcp45.2050.austral <- db_prob_elev(ref, r2, dem, '2050 RCP 4.5', 'Austral')
 
 # lm
-lm.rcp85.2050 <- lm(elevacion~p, data = db.rcp85.2050)
-summary(lm.rcp85.2050)
+lm.rcp45.2050.austral <- lm(elevacion~p, data = rcp45.2050.austral)
+summary(lm.rcp45.2050.austral)
 
-b0.rcp85.2050 <- coef(lm.rcp85.2050)[1] ; b0.rcp85.2050
-b1.rcp85.2050 <- coef(lm.rcp85.2050)[2] ; b1.rcp85.2050
-range.p.rcp85.2050 <- seq(0, max(db.rcp85.2050$p), by=0.001)
-val.rcp85.2050 <- (b1.rcp85.2050*range.p.rcp85.2050)+b0.rcp85.2050
+b0.rcp45.2050.austral <- coef(lm.rcp45.2050.austral)[1] ; b0.rcp45.2050.austral
+b1.rcp45.2050.austral <- coef(lm.rcp45.2050.austral)[2] ; b1.rcp45.2050.austral
+valores.rcp45.2050.austral <- seq(0, max(rcp45.2050.austral$p), by=0.001)
+valores.ajustados.rcp45.2050.austral <- (b1.rcp45.2050.austral*valores.rcp45.2050.austral)+b0.rcp45.2050.austral
 
-plot(db.rcp85.2050$p, db.rcp85.2050$elevacion, xlab='Probability', ylab='Elevation')
-lines(range.p.rcp85.2050, val.rcp85.2050, col='red')
+rcp45.2050.austral$intercepto <- round(b0.rcp45.2050.austral, 1)
+rcp45.2050.austral$b1 <- round(b1.rcp45.2050.austral, 1)
+head(rcp45.2050.austral)  
+
+plot(rcp45.2050.austral$p, rcp45.2050.austral$elevacion, xlab='Probability', ylab='Altitude')
+lines(valores.rcp45.2050.austral, valores.ajustados.rcp45.2050.austral, col='red')
+
+# fin ---
+
+
+
+
+# 2050 RCP85 ---
+
+# Sur
+rcp85.2050.sur <- db_prob_elev(ref, r3, dem, '2050 RCP 8.5', 'South')
+
+# lm
+lm.rcp85.2050.sur <- lm(elevacion~p, data = rcp85.2050.sur)
+summary(lm.rcp85.2050.sur)
+
+b0.rcp85.2050.sur <- coef(lm.rcp85.2050.sur)[1] ; b0.rcp85.2050.sur
+b1.rcp85.2050.sur <- coef(lm.rcp85.2050.sur)[2] ; b1.rcp85.2050.sur
+valores.rcp85.2050.sur <- seq(0, max(rcp85.2050.sur$p), by=0.001)
+valores.ajustados.rcp85.2050.sur <- (b1.rcp85.2050.sur*valores.rcp85.2050.sur)+b0.rcp85.2050.sur
+
+rcp85.2050.sur$intercepto <- round(b0.rcp85.2050.sur, 1)
+rcp85.2050.sur$b1 <- round(b1.rcp85.2050.sur, 1)
+head(rcp85.2050.sur)  
+
+plot(rcp85.2050.sur$p, rcp85.2050.sur$elevacion, xlab='Probability', ylab='Altitude')
+lines(valores.rcp85.2050.sur, valores.ajustados.rcp85.2050.sur, col='red')
+
+
+# Austral
+rcp85.2050.austral <- db_prob_elev(ref, r4, dem, '2050 RCP 8.5', 'Austral')
+
+# lm
+lm.rcp85.2050.austral <- lm(elevacion~p, data = rcp85.2050.austral)
+summary(lm.rcp85.2050.austral)
+
+b0.rcp85.2050.austral <- coef(lm.rcp85.2050.austral)[1] ; b0.rcp85.2050.austral
+b1.rcp85.2050.austral <- coef(lm.rcp85.2050.austral)[2] ; b1.rcp85.2050.austral
+valores.rcp85.2050.austral <- seq(0, max(rcp85.2050.austral$p), by=0.001)
+valores.ajustados.rcp85.2050.austral <- (b1.rcp85.2050.austral*valores.rcp85.2050.austral)+b0.rcp85.2050.austral
+
+rcp85.2050.austral$intercepto <- round(b0.rcp85.2050.austral, 1)
+rcp85.2050.austral$b1 <- round(b1.rcp85.2050.austral, 1)
+head(rcp85.2050.austral)  
+
+plot(rcp85.2050.austral$p, rcp85.2050.austral$elevacion, xlab='Probability', ylab='Altitude')
+lines(valores.rcp85.2050.austral, valores.ajustados.rcp85.2050.austral, col='red')
+
+# fin ---
+
+
+
 
 # 2070 RCP45 ---
-rcp45.2070.sur <- db_prob_elev(ref, r5, dem, '2070 RCP45', 'sur')
-rcp45.2070.austral <- db_prob_elev(ref, r6, dem, '2070 RCP45', 'austral')
-db.rcp45.2070 <- rbind(rcp45.2070.sur, rcp45.2070.austral)
-head(db.rcp45.2070)
+
+# Sur
+rcp45.2070.sur <- db_prob_elev(ref, r5, dem, '2070 RCP 4.5', 'South')
 
 # lm
-lm.rcp45.2070 <- lm(elevacion~p, data = db.rcp45.2070)
-summary(lm.rcp45.2070)
+lm.rcp45.2070.sur <- lm(elevacion~p, data = rcp45.2070.sur)
+summary(lm.rcp45.2070.sur)
 
-b0.rcp45.2070 <- coef(lm.rcp45.2070)[1] ; b0.rcp45.2070
-b1.rcp45.2070 <- coef(lm.rcp45.2070)[2] ; b1.rcp45.2070
-range.p.rcp45.2070 <- seq(0, max(db.rcp45.2070$p), by=0.001)
-val.rcp45.2070 <- (b1.rcp45.2070*range.p.rcp45.2070)+b0.rcp45.2070
+b0.rcp45.2070.sur <- coef(lm.rcp45.2070.sur)[1] ; b0.rcp45.2070.sur
+b1.rcp45.2070.sur <- coef(lm.rcp45.2070.sur)[2] ; b1.rcp45.2070.sur
+valores.rcp45.2070.sur <- seq(0, max(rcp45.2070.sur$p), by=0.001)
+valores.ajustados.rcp45.2070.sur <- (b1.rcp45.2070.sur*valores.rcp45.2070.sur)+b0.rcp45.2070.sur
 
-plot(db.rcp45.2070$p, db.rcp45.2070$elevacion, xlab='Probability', ylab='Elevation')
-lines(range.p.rcp45.2070, val.rcp45.2070, col='red')
+rcp45.2070.sur$intercepto <- round(b0.rcp45.2070.sur, 1)
+rcp45.2070.sur$b1 <- round(b1.rcp45.2070.sur, 1)
+head(rcp45.2070.sur)  
 
-# 2050 RCP85 ---
-rcp85.2070.sur <- db_prob_elev(ref, r7, dem, '2070 RCP85', 'sur')
-rcp85.2070.austral <- db_prob_elev(ref, r8, dem, '2070 RCP85', 'austral')
-db.rcp85.2070 <- rbind(rcp85.2070.sur, rcp85.2070.austral)
-head(db.rcp85.2070)
+plot(rcp45.2070.sur$p, rcp45.2070.sur$elevacion, xlab='Probability', ylab='Altitude')
+lines(valores.rcp45.2070.sur, valores.ajustados.rcp45.2070.sur, col='red')
+
+
+# Austral
+rcp45.2070.austral <- db_prob_elev(ref, r6, dem, '2070 RCP 4.5', 'Austral')
+head(rcp45.2070.austral)
 
 # lm
-lm.rcp85.2070 <- lm(elevacion~p, data = db.rcp85.2070)
-summary(lm.rcp85.2070)
+lm.rcp45.2070.austral <- lm(elevacion~p, data = rcp45.2070.austral)
+summary(lm.rcp45.2070.austral)
 
-b0.rcp85.2070 <- coef(lm.rcp85.2070)[1] ; b0.rcp85.2070
-b1.rcp85.2070 <- coef(lm.rcp85.2070)[2] ; b1.rcp85.2070
-range.p.rcp85.2070 <- seq(0, max(db.rcp85.2070$p), by=0.001)
-val.rcp85.2070 <- (b1.rcp85.2070*range.p.rcp85.2070)+b0.rcp85.2070
+b0.rcp45.2070.austral <- coef(lm.rcp45.2070.austral)[1] ; b0.rcp45.2070.austral
+b1.rcp45.2070.austral <- coef(lm.rcp45.2070.austral)[2] ; b1.rcp45.2070.austral
+valores.rcp45.2070.austral <- seq(0, max(rcp45.2070.austral$p), by=0.001)
+valores.ajustados.rcp45.2070.austral <- (b1.rcp45.2070.austral*valores.rcp45.2070.austral)+b0.rcp45.2070.austral
 
-plot(db.rcp85.2070$p, db.rcp85.2070$elevacion, xlab='Probability', ylab='Elevation')
-lines(range.p.rcp85.2070, val.rcp85.2070, col='red')
+rcp45.2070.austral$intercepto <- round(b0.rcp45.2070.austral, 1)
+rcp45.2070.austral$b1 <- round(b1.rcp45.2070.austral, 1)
+head(rcp45.2070.austral)  
+
+plot(rcp45.2070.austral$p, rcp45.2070.austral$elevacion, xlab='Probability', ylab='Altitude')
+lines(valores.rcp45.2070.austral, valores.ajustados.rcp45.2070.austral, col='red')
+
+# fin ---
+
+
+
+
+# 2070 RCP85 ---
+
+# Sur
+rcp85.2070.sur <- db_prob_elev(ref, r7, dem, '2070 RCP 8.5', 'South')
+
+# lm
+lm.rcp85.2070.sur <- lm(elevacion~p, data = rcp85.2070.sur)
+summary(lm.rcp85.2070.sur)
+
+b0.rcp85.2070.sur <- coef(lm.rcp85.2070.sur)[1] ; b0.rcp85.2070.sur
+b1.rcp85.2070.sur <- coef(lm.rcp85.2070.sur)[2] ; b1.rcp85.2070.sur
+valores.rcp85.2070.sur <- seq(0, max(rcp85.2070.sur$p), by=0.001)
+valores.ajustados.rcp85.2070.sur <- (b1.rcp85.2070.sur*valores.rcp85.2070.sur)+b0.rcp85.2070.sur
+
+rcp85.2070.sur$intercepto <- round(b0.rcp85.2070.sur, 1)
+rcp85.2070.sur$b1 <- round(b1.rcp85.2070.sur, 1)
+head(rcp85.2070.sur)  
+
+plot(rcp85.2070.sur$p, rcp85.2070.sur$elevacion, xlab='Probability', ylab='Altitude')
+lines(valores.rcp85.2070.sur, valores.ajustados.rcp85.2070.sur, col='red')
+
+
+# Austral
+rcp85.2070.austral <- db_prob_elev(ref, r8, dem, '2070 RCP 8.5', 'Austral')
+head(rcp85.2070.austral)
+
+# lm
+lm.rcp85.2070.austral <- lm(elevacion~p, data = rcp85.2070.austral)
+summary(lm.rcp85.2070.austral)
+
+b0.rcp85.2070.austral <- coef(lm.rcp85.2070.austral)[1] ; b0.rcp85.2070.austral
+b1.rcp85.2070.austral <- coef(lm.rcp85.2070.austral)[2] ; b1.rcp85.2070.austral
+valores.rcp85.2070.austral <- seq(0, max(rcp85.2070.austral$p), by=0.001)
+valores.ajustados.rcp85.2070.austral <- (b1.rcp85.2070.austral*valores.rcp85.2070.austral)+b0.rcp85.2070.austral
+
+rcp85.2070.austral$intercepto <- round(b0.rcp85.2070.austral, 1)
+rcp85.2070.austral$b1 <- round(b1.rcp85.2070.austral, 1)
+head(rcp85.2070.austral)  
+
+plot(rcp85.2070.austral$p, rcp85.2070.austral$elevacion, xlab='Probability', ylab='Altitude')
+lines(valores.rcp85.2070.austral, valores.ajustados.rcp85.2070.austral, col='red')
+
+# fin ---
+
+
+
 
 # union dbs ----
 db <- rbind(db.ref, db.rcp45.2050, db.rcp45.2070, db.rcp85.2050, db.rcp85.2070)
@@ -332,7 +464,7 @@ head(db)
 ggplot(db) + 
   geom_density(aes(x = elevacion, fill = cat), position = position_dodge(1), alpha = 0.3) + 
   facet_grid(cat~.,) +
-  labs(x = 'Elevation', y = 'Density') +
+  labs(x = 'Altitude', y = 'Density') +
   ylim(0, 0.002) +
   theme_bw() +
   theme(legend.position="none")
@@ -350,7 +482,7 @@ par(mar=c(4,4,0,0)+0.1)
 ggplot(db.s, aes(x=p2, y=elevacion2) ) +
   geom_hex(bins = 70) +
   lims(x=c(0,1)) +
-  labs(x = 'Probability', y = 'Elevation') +
+  labs(x = 'Probability', y = 'Altitude') +
   geom_smooth(method = lm, # Recta de regresión
               se = FALSE, col = 'red') + # Oculta intervalo de confianza
   facet_wrap(vars(cat), ncol = 3) +
@@ -375,7 +507,7 @@ par(mar=c(4,4,0,0)+0.1)
 ggplot(db.a, aes(x=p, y=elevacion) ) +
   geom_hex(bins = 70) +
   lims(x=c(0,1)) +
-  labs(x = 'Probability', y = 'Elevation') +
+  labs(x = 'Probability', y = 'Altitude') +
   geom_smooth(method = lm, # Recta de regresión
               se = FALSE, col = 'red') + # Oculta intervalo de confianza
   facet_wrap(vars(cat), ncol = 3) +
