@@ -37,7 +37,7 @@ db.ref.sur.gain.without2[order(db.ref.sur.gain.without2$values),]
 db.ref.sur.gain.with2 <- data.frame(type='Only variable named in y-axis', Variable=rowNames, values=values.y)
 db.ref.sur.gain.with2
 
-db.ref.sur2 <- rbind(db.ref.sur.gain.with2, db.ref.sur.gain.without2)
+db.ref.sur2 <- rbind(db.ref.sur.gain.without2, db.ref.sur.gain.with2)
 db.ref.sur2$zona <- 'South'
 
 # fin ---
@@ -73,7 +73,7 @@ db.ref.austral.gain.without2[order(db.ref.austral.gain.without2$values),]
 db.ref.austral.gain.with2 <- data.frame(type='Only variable named in y-axis', Variable=rowNames, values=values.y)
 db.ref.austral.gain.with2
 
-db.ref.austral2 <- rbind(db.ref.austral.gain.with2, db.ref.austral.gain.without2)
+db.ref.austral2 <- rbind(db.ref.austral.gain.without2, db.ref.austral.gain.with2)
 db.ref.austral2$zona <- 'Austral'
 # fin ---
 
@@ -91,12 +91,15 @@ dbf$Variable <- factor(dbf$Variable, levels = c('', 'Slope', 'Aspect', 'Altitude
                                                 'Minimum temperature\nin winter', 
                                                 'Maximum temperature\nin summer', 
                                                 'Precipitation in winter'))
-
+dbf$type <- factor(dbf$type, levels = c('Only variable named in y-axis',
+                                        'All variables except the variable named in y-axis',
+                                        'All variables'))
 # plot ---
 p.out <- ggplot(dbf, aes(x = Variable, y = values)) +
   geom_col(aes(fill = type), width = 0.5, position = position_dodge(0.2, preserve = 'single')) +
   labs(y = 'Regularized training gain', x = 'Environmental variables') +
-  scale_fill_manual('Model created with:', values = c("#C0C1C2", "#18406A", '#C5421F'), guide = guide_legend(reverse = TRUE)) +
+  scale_fill_manual('Model created with:', values = c("#C0C1C2", "#18406A", '#C5421F'), 
+                    guide = guide_legend(reverse = TRUE)) +
   theme_bw() +
   theme(text = element_text(size=18), legend.position = 'bottom', legend.justification = "left",
         panel.spacing = unit(1, "lines")) + 
@@ -107,8 +110,9 @@ p.out <- ggplot(dbf, aes(x = Variable, y = values)) +
 p.out
 
 setwd('C:/Users/Usuario/OneDrive/plots_paper/')
-jpeg('jackknife_modelo_sur_austral.jpg', width = 1850, height = 1400, units = "px", pointsize = 12,
-     quality = 100, type = 'cairo', res = 200)
+# jpeg('jackknife_modelo_sur_austral.jpg', width = 1850, height = 1400, units = "px", pointsize = 12,
+#      quality = 100, type = 'cairo', res = 200)
+# tiff('jackknife_modelo_sur_austral_300dpi.tiff',width=10,height=8,units="in",res=300)
 
 p.out
 

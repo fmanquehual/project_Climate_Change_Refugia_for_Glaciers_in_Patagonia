@@ -89,15 +89,8 @@ eval.stack <- function(stack.i, zona.glaciologica, var.i){
   min.i <- cellStats(stack.j, stat = 'min', na.rm=TRUE)
   max.i <- cellStats(stack.j, stat = 'max', na.rm=TRUE)
   
-  # label.i <- paste('SD = ', round(sd.i, 2), sep = '') ; label.i
-  
   boxplot(stack.j, xlab = 'GCMs', las=1, ylim=range.i)
   points(mean.i, col='red', pch=16)
-  # text(x=1, y=(max(max.i)+0.5), labels=label.i[1], cex=0.8)
-  # text(x=2, y=(max(max.i)+0.5), labels=label.i[2], cex=0.8)
-  # text(x=3, y=(max(max.i)+0.5), labels=label.i[3], cex=0.8)
-  # text(x=4, y=(max(max.i)+0.5), labels=label.i[4], cex=0.8)
-  # text(x=5, y=(max(max.i)+0.5), labels=label.i[5], cex=0.8)
 }
 
 # f5
@@ -170,7 +163,7 @@ eval.stack.without.axis.y2 <- function(stack.i, zona.glaciologica, var.i){
 axes.map <- function(l.i, raster.i){
   if(l.i=='lon'){l.j <- 1:2} else(l.j <- 3:4)
   if(l.i=='lon'){n.i <- 1} else(n.i <- 1)
-  if(l.i=='lon'){sufijo <- '°W'} else(sufijo <- '°S')  
+  if(l.i=='lon'){sufijo <- '?W'} else(sufijo <- '?S')  
   l <- extent(raster.i)[l.j]
   l.min <- min(l)
   l.max <- max(l)
@@ -238,15 +231,16 @@ GCMs.referencia <- function(name.model, zona.glaciologica){
 
 
 
-# lectura coberturas (2010)----
-
+# # lectura coberturas (2010)----
+ 
 setwd('C:/Users/Usuario/Documents/Francisco/coberturas/')
 marco_zona_sur <- readOGR('.', 'polygon_zona_glaciologica_sur_geo')
 marco_zona_austral <- readOGR('.', 'polygon_zona_glaciologica_austral_geo')
+plot(marco_zona_austral, axes=TRUE)
 
 zona.glaciologica <- 'sur'
 
-# 2050 
+# 2050
 rcp.50 <- 'rcp85'
 anho.50 <- 2050
 
@@ -265,10 +259,8 @@ miroc.70 <- var.futuro('MIROC', rcp.70, anho.70)
 csiro.70 <- var.futuro('CSIRO', rcp.70, anho.70)
 ccsm4.70 <- var.futuro('CCSM4', rcp.70, anho.70)
 #plot(ccsm4.70)
-
+ 
 referencia <- var.referencia(zona.glaciologica)
-# plot(referencia)
-# plot(referencia.2005)
 
 # fin ---
 
@@ -295,6 +287,7 @@ ccsm4.2005.austral <- GCMs.referencia('CCSM4', 'austral')
 
 referencia.2005.sur <- var.referencia.2005('sur')
 referencia.2005.austral <- var.referencia.2005('austral')
+plot(referencia.2005.sur)
 
 # fin ---
 
@@ -331,32 +324,32 @@ round(cellStats(tmax.2005.austral, stat = 'sd', na.rm=TRUE), 2)
 
 
 
-# mapa referencia 2010
-ref <- as.data.frame(referencia[[2]], xy = TRUE) 
-head(ref)
-names(ref) <- c('x', 'y', 'temp')
-
-map <- ggplot() +
-  geom_raster(data = ref, aes(x = x, y = y, fill = temp)) +
-  theme_classic() + 
-  theme(legend.key.size = unit(1, "cm"), legend.position = 'bottom', 
-        axis.text = element_text(face="bold", size=14),
-        legend.text = element_text(size = 14)) +
-  labs(tag = '\n', y = '', x = '') +
-  coord_sf(crs=4326, expand = TRUE) +
-  scale_fill_continuous('C°', low = 'yellow', high = 'red',
-                        space = "Lab", na.value = "transparent", guide = "colourbar",
-                        aesthetics = "fill") +
-  annotation_scale(location = "bl", text_col = 'black', style = 'ticks', line_col = 'black',
-                   text_cex = 1, height =  unit(0.35,"cm")) + 
-  annotation_north_arrow(location = "tl", which_north = "true", height = unit(1, "cm"), width = unit(1, "cm"))
-map
+# # mapa referencia 2010
+# ref <- as.data.frame(referencia[[2]], xy = TRUE) 
+# head(ref)
+# names(ref) <- c('x', 'y', 'temp')
+# 
+# map <- ggplot() +
+#   geom_raster(data = ref, aes(x = x, y = y, fill = temp)) +
+#   theme_classic() + 
+#   theme(legend.key.size = unit(1, "cm"), legend.position = 'bottom', 
+#         axis.text = element_text(face="bold", size=14),
+#         legend.text = element_text(size = 14)) +
+#   labs(tag = '\n', y = '', x = '') +
+#   coord_sf(crs=4326, expand = TRUE) +
+#   scale_fill_continuous('C?', low = 'yellow', high = 'red',
+#                         space = "Lab", na.value = "transparent", guide = "colourbar",
+#                         aesthetics = "fill") +
+#   annotation_scale(location = "bl", text_col = 'black', style = 'ticks', line_col = 'black',
+#                    text_cex = 1, height =  unit(0.35,"cm")) + 
+#   annotation_north_arrow(location = "tl", which_north = "true", height = unit(1, "cm"), width = unit(1, "cm"))
+# map
 
 
 
 
 # mapa referencia 2005
-ref.2005 <- as.data.frame(referencia.2005, xy = TRUE) 
+ref.2005 <- as.data.frame(referencia.2005.sur, xy = TRUE) 
 head(ref.2005)
 names(ref.2005) <- c('x', 'y', 'temp')
 
@@ -368,7 +361,7 @@ map.2005 <- ggplot() +
         legend.text = element_text(size = 14)) +
   labs(tag = '\n', y = '', x = '') +
   coord_sf(crs=4326, expand = TRUE) +
-  scale_fill_continuous('C°', low = 'yellow', high = 'red',
+  scale_fill_continuous('CÂ°', low = 'yellow', high = 'red',
                         space = "Lab", na.value = "transparent", guide = "colourbar",
                         aesthetics = "fill") +
   annotation_scale(location = "bl", text_col = 'black', style = 'ticks', line_col = 'black',
@@ -390,11 +383,11 @@ dbf <- rbind(db.50, db.70)
 
 p <- ggplot(dbf, aes(reorder(GCM, VALOR), VALOR)) + scale_y_continuous(position = "right")
 out <- p + geom_boxplot() + 
-  labs(tag = '\n', y = 'Tx summer (C°)', x = '') +
-  stat_summary(fun.y=mean, geom="point", shape=20, size=3, color="red", fill="red") +
+  labs(tag = '\n', y = 'Maximum temperature in summer (CÂ°)', x = '') +
+  stat_summary(fun=mean, geom="point", shape=20, size=3, color="red", fill="red") +
   theme_bw() +
-  theme(axis.text = element_text(size=14, color = 'black'), 
-        axis.title.y = element_text(size=14, color = 'black')) +
+  theme(axis.text = element_text(size=12, color = 'black'), 
+        axis.title.y = element_text(size=12, color = 'black')) +
   facet_wrap(~anho, nrow = 2) + 
   theme(strip.text.x = element_text(size=12, color="black"))
 
@@ -404,55 +397,52 @@ out <- p + geom_boxplot() +
 # setEPS()
 # postscript(file = "comparacion_GCMs_periodo_referencia.eps", height = 25/2.54, width = 30/2.54)  # Una figura en cm
 # par(mar=c(4,4,0,0)+0.1)
-# out
-# dev.off()
+out
+
+plot.output <- plot_grid(map.2005, out, labels=c("AUTO"), ncol = 2, nrow = 1)
+plot.output
+
+setwd('C:/Users/Usuario/OneDrive/plots_paper/')
+# tiff('comparacion_referencia_GCMs_rcp85_sur_300dpi.tiff', width=10, height=8, units="in", res=300)
+
+plot.output
+
+dev.off()
+
 # fin ---
-
-
-
-
-
 
 
 
 
 # boxplot 2005 ---
 
-db.2005.sur <- db.boxplot(tmax.2005.sur, 'South')
-db.2005.austral <- db.boxplot(tmax.2005.austral, 'Austral')
-
-dbf.2005 <- rbind(db.2005.sur, db.2005.austral)
-dbf.2005$anho <- factor(dbf.2005$anho, levels = c('South', 'Austral'))
-
-p <- ggplot(dbf.2005, aes(reorder(GCM, VALOR), VALOR))
-out <- p + geom_boxplot() + 
-  labs(y = 'Tx summer (C°)', x = '') +
-  stat_summary(fun.y=mean, geom="point", shape=20, size=2, color="red", fill="red") +
-  theme_bw() +
-  theme(axis.text = element_text(size=10, color = 'black'), 
-        axis.title.y = element_text(size=14, color = 'black')) +
-  facet_wrap(~anho, ncol = 2) + 
-  theme(strip.text.x = element_text(size=14, color="black"))
-out
+# db.2005.sur <- db.boxplot(tmax.2005.sur, 'South')
+# db.2005.austral <- db.boxplot(tmax.2005.austral, 'Austral')
+# 
+# dbf.2005 <- rbind(db.2005.sur, db.2005.austral)
+# dbf.2005$anho <- factor(dbf.2005$anho, levels = c('South', 'Austral'))
+# 
+# p <- ggplot(dbf.2005, aes(reorder(GCM, VALOR), VALOR))
+# out <- p + geom_boxplot() + 
+#   labs(y = 'Tx summer (CÂ°)', x = '') +
+#   stat_summary(fun=mean, geom="point", shape=20, size=2, color="red", fill="red") +
+#   theme_bw() +
+#   theme(axis.text = element_text(size=10, color = 'black'), 
+#         axis.title.y = element_text(size=14, color = 'black')) +
+#   facet_wrap(~anho, nrow = 2) + 
+#   theme(strip.text.x = element_text(size=14, color="black"))
+# out
 
 # output plot 
 
-setwd('C:/Users/Usuario/OneDrive/plots_paper/')
-setEPS()
-postscript(file = "comparacion_GCMs_periodo_referencia.eps", height = 6.5, width = 8)  # Una figura en cm
-par(mar=c(4,4,0,0)+0.1)
-out
-dev.off()
+# setwd('C:/Users/Usuario/OneDrive/plots_paper/')
+# setEPS()
+# postscript(file = "comparacion_GCMs_periodo_referencia.eps", height = 6.5, width = 8)  # Una figura en cm
+# par(mar=c(4,4,0,0)+0.1)
+# out
+# dev.off()
+
 # fin ---
-
-
-
-
-
-
-
-
-
 
 
 
@@ -488,14 +478,14 @@ dev.off()
 # 
 # eval.stack.without.axis.x(tmax.70, zona.glaciologica, 'temp')
 # mtext('A', side = 3, line = -1.5, adj=0.02, font = 2)
-# mtext('Maximum temperature summer (C°)', side = 2, line = 3, cex = 0.7)
+# mtext('Maximum temperature summer (C?)', side = 2, line = 3, cex = 0.7)
 # 
 # eval.stack.without.axis.y(tmax.70, zona.glaciologica, 'temp')
 # mtext('B', side = 3, line = -1.5, adj=0.02, font = 2)
 # 
 # eval.stack.without.axis.x(tmin.50, zona.glaciologica, 'temp')
 # mtext('C', side = 3, line = -1.5, adj=0.02, font = 2)
-# mtext('Minimum temperature winter (C°)', side = 2, line = 3, cex = 0.7)
+# mtext('Minimum temperature winter (C?)', side = 2, line = 3, cex = 0.7)
 # 
 # eval.stack.without.axis.y(tmin.70, zona.glaciologica, 'temp')
 # mtext('D', side = 3, line = -1.5, adj=0.02, font = 2)

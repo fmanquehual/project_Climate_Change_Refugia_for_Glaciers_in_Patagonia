@@ -8,6 +8,9 @@ library('prettymapr')
 library('ggplot2')
 library('ggspatial')
 
+rm(list=ls())
+dev.off()
+
 # lectura de coberturas ----
 setwd('C:/Users/Usuario/Documents/Francisco/coberturas/')
 
@@ -65,7 +68,7 @@ plot(p.value.stack)
 plot.clim <- function(raster.i, var.i, value.min=NULL, value.max=NULL, letter.i=NULL){
   
 if(var.i == 'pp'){col.i <- c('#A9D0F5', '#084B8A')} else(col.i <- c('#FFFF00', '#B40404'))
-if(var.i == 'pp'){legend.name <- 'mm'} else(legend.name <- '°C')
+if(var.i == 'pp'){legend.name <- 'mm'} else(legend.name <- '?C')
 if(is.null(letter.i)){letter <- NULL} else(letter <- letter.i)
 if(is.null(value.min)){value.min.i <- minValue(raster.i)} else(value.min.i <- value.min)
 if(is.null(value.max)){value.max.i <- maxValue(raster.i)} else(value.max.i <- value.max)

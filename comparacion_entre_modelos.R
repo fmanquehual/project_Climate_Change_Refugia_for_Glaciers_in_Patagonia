@@ -1,5 +1,8 @@
 library('raster')
 
+rm(list=ls())
+dev.off()
+
 # funciones ----
 
 # modelo: 'CSIRO', 'IPSL', 'CCSM4', 'MIROC'

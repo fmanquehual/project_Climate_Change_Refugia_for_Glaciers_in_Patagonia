@@ -6,6 +6,9 @@ library('prettymapr')
 library('ggplot2')
 library('ggspatial')
 
+rm(list=ls())
+dev.off()
+
 # f1
 raster.to.db <- function(raster.i){
   r1 <- as.vector(as.matrix(raster.i))
@@ -65,15 +68,22 @@ plot.p_value <- function(raster.i, letter.i=NULL){
 
 # periodo referencia ----
 setwd('C:/Users/Usuario/Documents/Francisco/var_predictoras/todas_las_variables_predictoras_ok/sen_slope_referencia/')
-ref <- stack("sen_slope_pp_1980_2010_geo_ok.tif", "sen_slope_tmin_1980_2010_geo_ok.tif")
+ref <- stack("sen_slope_pp_1980_2010_geo_ok.tif", 
+             "sen_slope_tmin_1980_2010_geo_ok.tif",
+             "sen_slope_tmax_1980_2010_geo_ok.tif")
 plot(ref)
 
 setwd('C:/Users/Usuario/Documents/Francisco/var_predictoras/todas_las_variables_predictoras_ok/sen_slope_futuro/')
-f <- stack("clip_sen_slope_CSIRO_rcp85_pp_2011_2080_geo_ok.tif", "clip_sen_slope_CSIRO_rcp85_tmin_2011_2080_geo_ok.tif")
+f <- stack("clip_sen_slope_CSIRO_rcp85_pp_2011_2080_geo_ok.tif", 
+           "clip_sen_slope_CSIRO_rcp85_tmin_2011_2080_geo_ok.tif",
+           "clip_sen_slope_CSIRO_rcp85_tmax_2011_2080_geo_ok.tif")
 plot(f)
 
 setwd('C:/Users/Usuario/Documents/Francisco/var_predictoras/historico_CHELSA/sen_slope_y_p_value/p_value/')
-pv.ref0 <- stack('p_value_sen_slope_pp_1980_2010_geo.tif', 'p_value_sen_slope_tmin_1980_2010_geo.tif')
+pv.ref0 <- stack('p_value_sen_slope_pp_1980_2010_geo.tif',
+                 'p_value_sen_slope_tmin_1980_2010_geo.tif',
+                 'p_value_sen_slope_tmax_1980_2010_geo.tif')
+
 pv.ref.pre0 <- resample(pv.ref0, ref[[1]], method='bilinear')
 pv.ref <- mask(pv.ref.pre0, ref[[1]])
 
@@ -81,17 +91,12 @@ plot(pv.ref)
 
 setwd('C:/Users/Usuario/Documents/Francisco/var_predictoras/output/coberturas_clip/P_VALUE/')
 pv.f.pre <- stack("clip_p_value_sen_slope_CSIRO_rcp85_pp_2011_2080_geo.tif", 
-                  "clip_p_value_sen_slope_CSIRO_rcp85_tmin_2011_2080_geo.tif") 
+                  "clip_p_value_sen_slope_CSIRO_rcp85_tmin_2011_2080_geo.tif",
+                  "clip_p_value_sen_slope_CSIRO_rcp85_tmax_2011_2080_geo.tif")
+
 pv.f.pre2 <- resample(pv.f.pre, ref[[1]], method='bilinear')
 pv.f <- mask(pv.f.pre2, ref[[1]])
 plot(pv.f)  
-
-
-# fin ---
-
-
-
-# periodo futuro ----
 
 
 # fin ---
@@ -115,11 +120,48 @@ p.pp
 
 # output
 setwd('C:/Users/Usuario/OneDrive/plots_paper/')
-setEPS()
-postscript(file = "mapa_pendiente_y_p_value_csiro_pp_ref_vs_futuro_2011_2080_rcp85.eps", height = 25/2.54, width = 20/2.54)  # Una figura en cm
-#par(mar=c(5,4,4,2)+0.1) # The defualt margin
-par(mar=c(4,4,0,0)+0.1)
+# setEPS()
+# postscript(file = "mapa_pendiente_y_p_value_csiro_pp_ref_vs_futuro_2011_2080_rcp85.eps", height = 25/2.54, width = 20/2.54)  # Una figura en cm
+# #par(mar=c(5,4,4,2)+0.1) # The defualt margin
+# par(mar=c(4,4,0,0)+0.1)
+
+# tiff('mapa_pendiente_y_p_value_csiro_pp_ref_vs_futuro_2011_2080_rcp85_300dpi.tiff',
+#       width=8, height=11, units="in", res=300)
+
 p.pp
+
+dev.off()
+
+# fin ---
+
+
+
+
+# plot tmin ----
+slope1 <- plot.slope(ref[[2]], 'tmin')
+slope2 <- plot.slope(f[[2]], 'tmin')
+
+p_value1 <- plot.p_value(pv.ref[[2]])
+p_value2 <- plot.p_value(pv.f[[2]])
+
+p.tmin <- plot_grid(slope1, p_value1,
+                  slope2, p_value2,
+                  labels=c("AUTO"), ncol = 2, nrow = 2)
+p.tmin
+
+
+# output
+setwd('C:/Users/Usuario/OneDrive/plots_paper/')
+# setEPS()
+# postscript(file = "mapa_pendiente_y_p_value_csiro_tmin_ref_vs_futuro_2011_2080_rcp85.eps", height = 25/2.54, width = 20/2.54)  # Una figura en cm
+# #par(mar=c(5,4,4,2)+0.1) # The defualt margin
+# par(mar=c(4,4,0,0)+0.1)
+
+# tiff('mapa_pendiente_y_p_value_csiro_tmin_ref_vs_futuro_2011_2080_rcp85_300dpi.tiff',
+#      width=8, height=11, units="in", res=300)
+
+p.tmin
+
 dev.off()
 
 # fin ---
@@ -128,25 +170,30 @@ dev.off()
 
 
 # plot tmax ----
-slope1 <- plot.slope(ref[[2]], 'tmin')
-slope2 <- plot.slope(f[[2]], 'tmin')
+slope1 <- plot.slope(ref[[3]], 'tmax')
+slope2 <- plot.slope(f[[3]], 'tmax')
 
-p_value1 <- plot.p_value(pv.ref[[2]])
-p_value2 <- plot.p_value(pv.f[[2]])
+p_value1 <- plot.p_value(pv.ref[[3]])
+p_value2 <- plot.p_value(pv.f[[3]])
 
-p.temp <- plot_grid(slope1, p_value1,
-                  slope2, p_value2,
-                  labels=c("AUTO"), ncol = 2, nrow = 2)
-p.temp
+p.tmax <- plot_grid(slope1, p_value1,
+                    slope2, p_value2,
+                    labels=c("AUTO"), ncol = 2, nrow = 2)
+p.tmax
 
 
 # output
 setwd('C:/Users/Usuario/OneDrive/plots_paper/')
-setEPS()
-postscript(file = "mapa_pendiente_y_p_value_csiro_tmin_ref_vs_futuro_2011_2080_rcp85.eps", height = 25/2.54, width = 20/2.54)  # Una figura en cm
-#par(mar=c(5,4,4,2)+0.1) # The defualt margin
-par(mar=c(4,4,0,0)+0.1)
-p.temp
+# setEPS()
+# postscript(file = "mapa_pendiente_y_p_value_csiro_tmax_ref_vs_futuro_2011_2080_rcp85.eps", height = 25/2.54, width = 20/2.54)  # Una figura en cm
+# #par(mar=c(5,4,4,2)+0.1) # The defualt margin
+# par(mar=c(4,4,0,0)+0.1)
+
+# tiff('mapa_pendiente_y_p_value_csiro_tmax_ref_vs_futuro_2011_2080_rcp85_300dpi.tiff',
+#      width=8, height=11, units="in", res=300)
+
+p.tmax
+
 dev.off()
 
 # fin ---
